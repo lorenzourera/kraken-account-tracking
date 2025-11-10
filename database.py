@@ -107,7 +107,6 @@ class Database:
                 results = []
                 for row in cur.fetchall():
                     result = dict(row)
-                    result['balances'] = json.loads(result['balances'])
                     results.append(result)
                 return results
     
