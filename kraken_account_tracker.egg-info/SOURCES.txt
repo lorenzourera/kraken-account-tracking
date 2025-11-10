@@ -1,0 +1,12 @@
+pyproject.toml
+app/cli.py
+app/config.py
+app/database.py
+app/kraken.py
+app/main.py
+app/telegram_bot.py
+kraken_account_tracker.egg-info/PKG-INFO
+kraken_account_tracker.egg-info/SOURCES.txt
+kraken_account_tracker.egg-info/dependency_links.txt
+kraken_account_tracker.egg-info/requires.txt
+kraken_account_tracker.egg-info/top_level.txt
