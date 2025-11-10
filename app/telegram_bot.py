@@ -643,7 +643,7 @@ async def export_trades(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def main():
-    logger.info("ZO KRAKEN BOT STARTING — @zo_urera | PH Time: November 10, 2025")
+    logger.info("KRAKEN ACCOUNT TRACKING BOT STARTED")
     app = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
