@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://trading_user:password@localhost:5432/trading')
+DATABASE_URL = os.getenv('DATABASE_URL')
 KRAKEN_API_KEY = os.getenv('KRAKEN_MAIN_API_KEY')
 KRAKEN_API_SECRET = os.getenv('KRAKEN_MAIN_API_SECRET')
 

@@ -52,7 +52,7 @@ class KrakenConnector:
                         symbol = f"{currency}/USD"
                         if symbol in tickers:
                             price = Decimal(str(tickers[symbol]['last']))
-                            print(f"USD Price: {price}")
+                            # print(f"USD Price: {price}")
                             total_usd += price * Decimal(str(amount))
                         else:
                             print(f"{currency} not in tickers, cant get USD price")
