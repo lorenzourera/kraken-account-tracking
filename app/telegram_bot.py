@@ -350,15 +350,19 @@ def log_command(user, command: str, args=None):
     full_name = user.full_name
     user_id = user.id
     args_str = " ".join(args) if args else "(no args)"
-    logger.info(f"COMMAND | @{username} ({full_name}, ID: {user_id}) | /{command} {args_str}")
+    logger.info(
+        f"COMMAND | @{username} ({full_name}, ID: {user_id}) | /{command} {args_str}"
+    )
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     log_command(user, "start")
-    
+
     if not is_authorized(user.id):
-        logger.warning(f"UNAUTHORIZED ACCESS ATTEMPT | User ID: {user.id} | @{user.username or 'unknown'}")
+        logger.warning(
+            f"UNAUTHORIZED ACCESS ATTEMPT | User ID: {user.id} | @{user.username or 'unknown'}"
+        )
         await update.message.reply_text("Access denied.")
         return
 
@@ -378,17 +382,22 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def pull(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     log_command(user, "pull")
-    
+
     if not is_authorized(user.id):
         return
 
-    await update.message.reply_text("<i>Pulling fresh data from Kraken...</i>", parse_mode="HTML")
+    await update.message.reply_text(
+        "<i>Pulling fresh data from Kraken...</i>", parse_mode="HTML"
+    )
     logger.info("Executing run_daily_snapshot() via /pull")
-    
+
     try:
         from main import run_daily_snapshot
+
         run_daily_snapshot()
-        await update.message.reply_text("Fresh data pulled successfully! Use /balance or /trades")
+        await update.message.reply_text(
+            "Fresh data pulled successfully! Use /balance or /trades"
+        )
         logger.info("Pull completed successfully")
     except Exception as e:
         error_msg = str(e)
@@ -399,7 +408,7 @@ async def pull(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def balance(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     log_command(user, "balance")
-    
+
     if not is_authorized(user.id):
         return
 
@@ -411,6 +420,7 @@ async def balance(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     import json
+
     balances_raw = bal["balances"]
     if isinstance(balances_raw, str):
         try:
@@ -438,7 +448,9 @@ async def balance(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text += f"<b>TOTAL: ${total:,.2f}</b>\n\n"
     text += "<b>Top Assets:</b>\n<code>\n"
 
-    for asset, usd_val in sorted(asset_values.items(), key=lambda x: x[1], reverse=True)[:20]:
+    for asset, usd_val in sorted(
+        asset_values.items(), key=lambda x: x[1], reverse=True
+    )[:20]:
         amt = balances_dict[asset].get("amount", "0")
         try:
             amt_float = float(amt)
@@ -467,7 +479,7 @@ async def trades(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     logger.info(f"Fetching {limit} recent trades")
-    rows = db.get_all_trades(limit=limit) if hasattr(db, 'get_all_trades') else []
+    rows = db.get_all_trades(limit=limit) if hasattr(db, "get_all_trades") else []
     if not rows:
         await update.message.reply_text("No trades found. Run /pull first.")
         logger.warning("No trades in database")
@@ -478,14 +490,18 @@ async def trades(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text += "—" * 60 + "\n"
 
     for t in rows:
-        ts = t['trade_timestamp']
-        date_str = ts.strftime("%m-%d %H:%M") if isinstance(ts, datetime) else str(ts)[:16].replace("T", " ")
-        symbol = t['symbol'].replace("/", "")[:10]
-        side = "BUY" if t['side'] == 'buy' else "SELL"
+        ts = t["trade_timestamp"]
+        date_str = (
+            ts.strftime("%m-%d %H:%M")
+            if isinstance(ts, datetime)
+            else str(ts)[:16].replace("T", " ")
+        )
+        symbol = t["symbol"].replace("/", "")[:10]
+        side = "BUY" if t["side"] == "buy" else "SELL"
         side_icon = "BUY" if side == "BUY" else "SELL"
-        amt = float(t['amount'])
-        price = float(t['price'])
-        cost = float(t['cost'])
+        amt = float(t["amount"])
+        price = float(t["price"])
+        cost = float(t["cost"])
 
         text += f"{date_str:<12} {symbol:<12} {side_icon:<6} {amt:>12,.4f} ${price:>9,.2f} ${cost:>9,.0f}\n"
 
@@ -497,7 +513,7 @@ async def trades(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def export(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     log_command(user, "export", context.args)
-    
+
     if not is_authorized(user.id):
         return
 
@@ -511,7 +527,9 @@ async def export(update: Update, context: ContextTypes.DEFAULT_TYPE):
             preview_limit = 10
 
     logger.info(f"Exporting balance snapshots | preview: {preview_limit}")
-    await update.message.reply_text(f"<i>Exporting balance snapshots...</i>", parse_mode="HTML")
+    await update.message.reply_text(
+        f"<i>Exporting balance snapshots...</i>", parse_mode="HTML"
+    )
 
     snapshots = db.get_all_balances(exchange="kraken", limit=1000)
     if not snapshots:
@@ -519,10 +537,14 @@ async def export(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     preview_text = f"<b>BALANCE EXPORT</b> — {len(snapshots)} rows\n<code>"
-    preview_text += f"{'Date':<20} {'Total USD':>15}\n" + "—"*37 + "\n"
+    preview_text += f"{'Date':<20} {'Total USD':>15}\n" + "—" * 37 + "\n"
     for s in snapshots[:preview_limit]:
-        ts = s['timestamp'].strftime("%Y-%m-%d %H:%M") if isinstance(s['timestamp'], datetime) else str(s['timestamp'])[:16]
-        total = float(s['total_balance_usd'])
+        ts = (
+            s["timestamp"].strftime("%Y-%m-%d %H:%M")
+            if isinstance(s["timestamp"], datetime)
+            else str(s["timestamp"])[:16]
+        )
+        total = float(s["total_balance_usd"])
         preview_text += f"{ts:<20} ${total:>14,.2f}\n"
     preview_text += "</code>"
     await update.message.reply_text(preview_text, parse_mode="HTML")
@@ -531,14 +553,18 @@ async def export(update: Update, context: ContextTypes.DEFAULT_TYPE):
     writer = csv.writer(buffer)
     writer.writerow(["timestamp", "total_balance_usd"])
     for s in snapshots:
-        ts = s['timestamp'].strftime("%Y-%m-%d %H:%M:%S") if isinstance(s['timestamp'], datetime) else s['timestamp']
+        ts = (
+            s["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+            if isinstance(s["timestamp"], datetime)
+            else s["timestamp"]
+        )
         writer.writerow([ts, f"{float(s['total_balance_usd']):.2f}"])
 
     filename = f"balances_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
     await update.message.reply_document(
-        document=io.BytesIO(buffer.getvalue().encode('utf-8')),
+        document=io.BytesIO(buffer.getvalue().encode("utf-8")),
         filename=filename,
-        caption=f"Balance snapshots: {len(snapshots)} rows"
+        caption=f"Balance snapshots: {len(snapshots)} rows",
     )
     logger.info(f"Balance CSV exported | {len(snapshots)} rows | {filename}")
 
@@ -546,7 +572,7 @@ async def export(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def export_returns(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     log_command(user, "export_returns", context.args)
-    
+
     if not is_authorized(user.id):
         return
 
@@ -559,7 +585,7 @@ async def export_returns(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     logger.info(f"Exporting returns data | limit: {limit}")
     await update.message.reply_text("<i>Exporting returns...</i>", parse_mode="HTML")
-    
+
     returns = db.get_all_returns(exchange="kraken", limit=limit)
     if not returns:
         await update.message.reply_text("No returns data.")
@@ -567,21 +593,25 @@ async def export_returns(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     buffer = io.StringIO()
     writer = csv.writer(buffer)
-    writer.writerow(["date", "previous_date", "return_usd", "return_pct", "balance_usd"])
+    writer.writerow(
+        ["date", "previous_date", "return_usd", "return_pct", "balance_usd"]
+    )
     for r in returns:
-        writer.writerow([
-            r['return_date'],
-            r['previous_date'],
-            f"{float(r['daily_return_usd']):.2f}",
-            f"{float(r['daily_return_pct']):.2f}",
-            f"{float(r['current_balance_usd']):.2f}"
-        ])
+        writer.writerow(
+            [
+                r["return_date"],
+                r["previous_date"],
+                f"{float(r['daily_return_usd']):.2f}",
+                f"{float(r['daily_return_pct']):.2f}",
+                f"{float(r['current_balance_usd']):.2f}",
+            ]
+        )
 
     filename = f"returns_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
     await update.message.reply_document(
-        document=io.BytesIO(buffer.getvalue().encode('utf-8')),
+        document=io.BytesIO(buffer.getvalue().encode("utf-8")),
         filename=filename,
-        caption=f"Returns: {len(returns)} days"
+        caption=f"Returns: {len(returns)} days",
     )
     logger.info(f"Returns CSV exported | {len(returns)} rows | {filename}")
 
@@ -589,7 +619,7 @@ async def export_returns(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def export_trades(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     log_command(user, "export_trades", context.args)
-    
+
     if not is_authorized(user.id):
         return
 
@@ -601,9 +631,11 @@ async def export_trades(update: Update, context: ContextTypes.DEFAULT_TYPE):
             pass
 
     logger.info(f"Exporting trades | limit: {limit}")
-    await update.message.reply_text(f"<i>Exporting up to {limit} trades...</i>", parse_mode="HTML")
+    await update.message.reply_text(
+        f"<i>Exporting up to {limit} trades...</i>", parse_mode="HTML"
+    )
 
-    trades = db.get_all_trades(limit=limit) if hasattr(db, 'get_all_trades') else []
+    trades = db.get_all_trades(limit=limit) if hasattr(db, "get_all_trades") else []
     if not trades:
         await update.message.reply_text("No trades found.")
         logger.warning("No trades found for export")
@@ -611,32 +643,46 @@ async def export_trades(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     buffer = io.StringIO()
     writer = csv.writer(buffer)
-    writer.writerow([
-        "timestamp", "symbol", "side", "type", "amount", "price", "cost",
-        "fee_cost", "fee_currency", "trade_id"
-    ])
+    writer.writerow(
+        [
+            "timestamp",
+            "symbol",
+            "side",
+            "type",
+            "amount",
+            "price",
+            "cost",
+            "fee_cost",
+            "fee_currency",
+            "trade_id",
+        ]
+    )
 
     for t in trades:
-        ts = t['trade_timestamp']
-        ts_str = ts.strftime("%Y-%m-%d %H:%M:%S") if isinstance(ts, datetime) else str(ts)
-        writer.writerow([
-            ts_str,
-            t['symbol'],
-            t['side'].upper(),
-            t.get('type', ''),
-            f"{float(t['amount']):.8f}",
-            f"{float(t['price']):.8f}",
-            f"{float(t['cost']):.2f}",
-            t['fee_cost'] or '',
-            t['fee_currency'] or '',
-            t['trade_id']
-        ])
+        ts = t["trade_timestamp"]
+        ts_str = (
+            ts.strftime("%Y-%m-%d %H:%M:%S") if isinstance(ts, datetime) else str(ts)
+        )
+        writer.writerow(
+            [
+                ts_str,
+                t["symbol"],
+                t["side"].upper(),
+                t.get("type", ""),
+                f"{float(t['amount']):.8f}",
+                f"{float(t['price']):.8f}",
+                f"{float(t['cost']):.2f}",
+                t["fee_cost"] or "",
+                t["fee_currency"] or "",
+                t["trade_id"],
+            ]
+        )
 
     filename = f"trades_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
     await update.message.reply_document(
-        document=io.BytesIO(buffer.getvalue().encode('utf-8')),
+        document=io.BytesIO(buffer.getvalue().encode("utf-8")),
         filename=filename,
-        caption=f"Exported {len(trades)} trades"
+        caption=f"Exported {len(trades)} trades",
     )
     await update.message.reply_text(f"Done! {len(trades)} trades exported.")
     logger.info(f"Trades CSV exported | {len(trades)} trades | {filename}")

@@ -52,12 +52,12 @@ def pull_balance():
     # Save to database
     click.echo("\nSaving to database...")
     db = Database(config.DATABASE_URL)
-    
+
     # Ensure returns table exists
     db.create_returns_table()
-    
+
     db.save_balance_snapshot(balance)
-    
+
     # Calculate and save returns
     click.echo("Calculating returns...")
     try:
@@ -83,15 +83,16 @@ def show_balance(account):
     click.echo(f"Account: {balance['account_id']}")
     click.echo(f"Date: {balance['snapshot_date']}")
     click.echo(f"Total (USD): ${balance['total_balance_usd']:,.2f}\n")
-    
+
     # Parse balances (handle both dict and JSON string)
     import json
+
     balances_raw = balance["balances"]
     if isinstance(balances_raw, str):
         balances_dict = json.loads(balances_raw)
     else:
         balances_dict = balances_raw
-    
+
     click.echo("Asset Breakdown:")
     for asset, data in balances_dict.items():
         amount = data.get("amount", 0)
@@ -147,10 +148,10 @@ def show_returns(limit, account):
 
     total_return_usd = 0
     for ret in returns:
-        return_usd = float(ret['daily_return_usd'])
-        return_pct = float(ret['daily_return_pct'])
+        return_usd = float(ret["daily_return_usd"])
+        return_pct = float(ret["daily_return_pct"])
         total_return_usd += return_usd
-        
+
         symbol = "+" if return_usd >= 0 else ""
         click.echo(
             f"{str(ret['return_date']):<12} "
@@ -158,7 +159,7 @@ def show_returns(limit, account):
             f"{symbol}${return_usd:>13,.2f} "
             f"{symbol}{return_pct:>8,.2f}%"
         )
-    
+
     click.echo("-" * 52)
     avg_return = total_return_usd / len(returns) if returns else 0
     click.echo(f"{'Total:':<25} ${total_return_usd:>14,.2f}")
@@ -176,12 +177,12 @@ def latest_return(account):
         click.echo("No returns data found. Run 'pull_balance' to generate returns.")
         return
 
-    return_usd = float(ret['daily_return_usd'])
-    return_pct = float(ret['daily_return_pct'])
-    
+    return_usd = float(ret["daily_return_usd"])
+    return_pct = float(ret["daily_return_pct"])
+
     symbol = "📈" if return_usd >= 0 else "📉"
     sign = "+" if return_usd >= 0 else ""
-    
+
     click.echo(f"\n{symbol} Latest Return")
     click.echo(f"Account: {ret['account_id']}")
     click.echo(f"Return Date: {ret['return_date']}")

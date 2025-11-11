@@ -44,7 +44,7 @@
 # #                 %(exchange)s, %(account_id)s, %(snapshot_date)s, %(timestamp)s,
 # #                 %(total_balance_usd)s, %(balances)s, %(raw_data)s
 # #             )
-# #             ON CONFLICT (exchange, account_id, snapshot_date) 
+# #             ON CONFLICT (exchange, account_id, snapshot_date)
 # #             DO UPDATE SET
 # #                 timestamp = EXCLUDED.timestamp,
 # #                 total_balance_usd = EXCLUDED.total_balance_usd,
@@ -137,7 +137,7 @@
 # #     def list_accounts(self, exchange: str = "kraken"):
 # #         """List all accounts for an exchange"""
 # #         query = """
-# #             SELECT DISTINCT account_id, 
+# #             SELECT DISTINCT account_id,
 # #                    MAX(snapshot_date) as last_snapshot,
 # #                    COUNT(*) as snapshot_count
 # #             FROM balance_snapshots
@@ -203,15 +203,15 @@
 #                 timestamp TIMESTAMP NOT NULL,
 #                 UNIQUE(exchange, account_id, return_date)
 #             );
-            
-#             CREATE INDEX IF NOT EXISTS idx_returns_exchange_account 
+
+#             CREATE INDEX IF NOT EXISTS idx_returns_exchange_account
 #             ON daily_returns(exchange, account_id, return_date DESC);
 #         """
-        
+
 #         with self.get_connection() as conn:
 #             with conn.cursor() as cur:
 #                 cur.execute(query)
-        
+
 #         print("Daily returns table created/verified")
 
 #     def save_balance_snapshot(self, snapshot: dict):
@@ -224,7 +224,7 @@
 #                 %(exchange)s, %(account_id)s, %(snapshot_date)s, %(timestamp)s,
 #                 %(total_balance_usd)s, %(balances)s, %(raw_data)s
 #             )
-#             ON CONFLICT (exchange, account_id, snapshot_date) 
+#             ON CONFLICT (exchange, account_id, snapshot_date)
 #             DO UPDATE SET
 #                 timestamp = EXCLUDED.timestamp,
 #                 total_balance_usd = EXCLUDED.total_balance_usd,
@@ -258,28 +258,28 @@
 #     def get_previous_balance(self, exchange: str, account_id: str, current_date):
 #         """
 #         Get the most recent balance snapshot before the given date
-        
+
 #         Args:
 #             exchange: Exchange name (e.g., 'kraken')
 #             account_id: Account identifier
 #             current_date: The date to look before (datetime.date or datetime)
-            
+
 #         Returns:
 #             Dict with balance snapshot data, or None if no previous snapshot exists
 #         """
 #         query = """
 #             SELECT * FROM balance_snapshots
-#             WHERE exchange = %s 
-#             AND account_id = %s 
+#             WHERE exchange = %s
+#             AND account_id = %s
 #             AND snapshot_date < %s
 #             ORDER BY snapshot_date DESC
 #             LIMIT 1
 #         """
-        
+
 #         # Handle both datetime and date objects
 #         if hasattr(current_date, 'date'):
 #             current_date = current_date.date()
-        
+
 #         with self.get_connection() as conn:
 #             with conn.cursor(cursor_factory=RealDictCursor) as cur:
 #                 cur.execute(query, [exchange, account_id, current_date])
@@ -291,7 +291,7 @@
 #     def save_daily_return(self, return_data: dict):
 #         """
 #         Save daily return record to database
-        
+
 #         Args:
 #             return_data: Dict containing:
 #                 - exchange
@@ -323,11 +323,11 @@
 #                 daily_return_pct = EXCLUDED.daily_return_pct,
 #                 timestamp = EXCLUDED.timestamp
 #         """
-        
+
 #         with self.get_connection() as conn:
 #             with conn.cursor() as cur:
 #                 cur.execute(query, return_data)
-        
+
 #         print(
 #             f"Saved daily return for {return_data['account_id']} on {return_data['return_date']}: "
 #             f"{return_data['daily_return_pct']:.2f}%"
@@ -351,7 +351,7 @@
 #                 LIMIT 1
 #             """
 #             params = [exchange]
-        
+
 #         with self.get_connection() as conn:
 #             with conn.cursor(cursor_factory=RealDictCursor) as cur:
 #                 cur.execute(query, params)
@@ -380,7 +380,7 @@
 #                 LIMIT %s
 #             """
 #             params = [exchange, limit]
-        
+
 #         with self.get_connection() as conn:
 #             with conn.cursor(cursor_factory=RealDictCursor) as cur:
 #                 cur.execute(query, params)
@@ -452,7 +452,7 @@
 #     def list_accounts(self, exchange: str = "kraken"):
 #         """List all accounts for an exchange"""
 #         query = """
-#             SELECT DISTINCT account_id, 
+#             SELECT DISTINCT account_id,
 #                    MAX(snapshot_date) as last_snapshot,
 #                    COUNT(*) as snapshot_count
 #             FROM balance_snapshots
@@ -518,15 +518,15 @@
 #                 timestamp TIMESTAMP NOT NULL,
 #                 UNIQUE(exchange, account_id, return_date)
 #             );
-            
-#             CREATE INDEX IF NOT EXISTS idx_returns_exchange_account 
+
+#             CREATE INDEX IF NOT EXISTS idx_returns_exchange_account
 #             ON daily_returns(exchange, account_id, return_date DESC);
 #         """
-        
+
 #         with self.get_connection() as conn:
 #             with conn.cursor() as cur:
 #                 cur.execute(query)
-        
+
 #         print("Daily returns table created/verified")
 
 #     def create_trades_table(self):
@@ -549,18 +549,18 @@
 #                 raw_data JSONB,
 #                 UNIQUE(exchange, account_id, trade_id)
 #             );
-            
-#             CREATE INDEX IF NOT EXISTS idx_trades_exchange_account 
+
+#             CREATE INDEX IF NOT EXISTS idx_trades_exchange_account
 #             ON trades(exchange, account_id, trade_timestamp DESC);
-            
-#             CREATE INDEX IF NOT EXISTS idx_trades_symbol 
+
+#             CREATE INDEX IF NOT EXISTS idx_trades_symbol
 #             ON trades(symbol, trade_timestamp DESC);
 #         """
-        
+
 #         with self.get_connection() as conn:
 #             with conn.cursor() as cur:
 #                 cur.execute(query)
-        
+
 #         print("Trades table created/verified")
 
 #     def save_balance_snapshot(self, snapshot: dict):
@@ -573,7 +573,7 @@
 #                 %(exchange)s, %(account_id)s, %(snapshot_date)s, %(timestamp)s,
 #                 %(total_balance_usd)s, %(balances)s, %(raw_data)s
 #             )
-#             ON CONFLICT (exchange, account_id, snapshot_date) 
+#             ON CONFLICT (exchange, account_id, snapshot_date)
 #             DO UPDATE SET
 #                 timestamp = EXCLUDED.timestamp,
 #                 total_balance_usd = EXCLUDED.total_balance_usd,
@@ -607,28 +607,28 @@
 #     def get_previous_balance(self, exchange: str, account_id: str, current_date):
 #         """
 #         Get the most recent balance snapshot before the given date
-        
+
 #         Args:
 #             exchange: Exchange name (e.g., 'kraken')
 #             account_id: Account identifier
 #             current_date: The date to look before (datetime.date or datetime)
-            
+
 #         Returns:
 #             Dict with balance snapshot data, or None if no previous snapshot exists
 #         """
 #         query = """
 #             SELECT * FROM balance_snapshots
-#             WHERE exchange = %s 
-#             AND account_id = %s 
+#             WHERE exchange = %s
+#             AND account_id = %s
 #             AND snapshot_date < %s
 #             ORDER BY snapshot_date DESC
 #             LIMIT 1
 #         """
-        
+
 #         # Handle both datetime and date objects
 #         if hasattr(current_date, 'date'):
 #             current_date = current_date.date()
-        
+
 #         with self.get_connection() as conn:
 #             with conn.cursor(cursor_factory=RealDictCursor) as cur:
 #                 cur.execute(query, [exchange, account_id, current_date])
@@ -640,7 +640,7 @@
 #     def save_daily_return(self, return_data: dict):
 #         """
 #         Save daily return record to database
-        
+
 #         Args:
 #             return_data: Dict containing:
 #                 - exchange
@@ -672,11 +672,11 @@
 #                 daily_return_pct = EXCLUDED.daily_return_pct,
 #                 timestamp = EXCLUDED.timestamp
 #         """
-        
+
 #         with self.get_connection() as conn:
 #             with conn.cursor() as cur:
 #                 cur.execute(query, return_data)
-        
+
 #         print(
 #             f"Saved daily return for {return_data['account_id']} on {return_data['return_date']}: "
 #             f"{return_data['daily_return_pct']:.2f}%"
@@ -700,7 +700,7 @@
 #                 LIMIT 1
 #             """
 #             params = [exchange]
-        
+
 #         with self.get_connection() as conn:
 #             with conn.cursor(cursor_factory=RealDictCursor) as cur:
 #                 cur.execute(query, params)
@@ -729,7 +729,7 @@
 #                 LIMIT %s
 #             """
 #             params = [exchange, limit]
-        
+
 #         with self.get_connection() as conn:
 #             with conn.cursor(cursor_factory=RealDictCursor) as cur:
 #                 cur.execute(query, params)
@@ -801,7 +801,7 @@
 #     def list_accounts(self, exchange: str = "kraken"):
 #         """List all accounts for an exchange"""
 #         query = """
-#             SELECT DISTINCT account_id, 
+#             SELECT DISTINCT account_id,
 #                    MAX(snapshot_date) as last_snapshot,
 #                    COUNT(*) as snapshot_count
 #             FROM balance_snapshots
@@ -949,11 +949,17 @@ class Database:
                         "snapshot_date": snapshot["timestamp"].date(),
                         "timestamp": snapshot["timestamp"],
                         "total_balance_usd": snapshot["total_balance_usd"],
-                        "balances": json.dumps(self._decimal_to_str(snapshot["balances"])),
-                        "raw_data": json.dumps(self._decimal_to_str(snapshot.get("raw_data", {}))),
+                        "balances": json.dumps(
+                            self._decimal_to_str(snapshot["balances"])
+                        ),
+                        "raw_data": json.dumps(
+                            self._decimal_to_str(snapshot.get("raw_data", {}))
+                        ),
                     },
                 )
-        print(f"Saved balance snapshot for {snapshot['account_id']} on {snapshot['timestamp'].date()}")
+        print(
+            f"Saved balance snapshot for {snapshot['account_id']} on {snapshot['timestamp'].date()}"
+        )
 
     def get_previous_balance(self, exchange: str, account_id: str, current_date):
         query = """
@@ -992,18 +998,24 @@ class Database:
         with self.get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(query, return_data)
-        print(f"Saved daily return for {return_data['account_id']} on {return_data['return_date']}: {return_data['daily_return_pct']:.2f}%")
+        print(
+            f"Saved daily return for {return_data['account_id']} on {return_data['return_date']}: {return_data['daily_return_pct']:.2f}%"
+        )
 
     def get_latest_return(self, exchange: str = "kraken", account_id: str = None):
-        query = """
+        query = (
+            """
             SELECT * FROM daily_returns
             WHERE exchange = %s AND account_id = %s
             ORDER BY return_date DESC LIMIT 1
-        """ if account_id else """
+        """
+            if account_id
+            else """
             SELECT * FROM daily_returns
             WHERE exchange = %s
             ORDER BY return_date DESC LIMIT 1
         """
+        )
         params = [exchange, account_id] if account_id else [exchange]
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -1011,16 +1023,22 @@ class Database:
                 row = cur.fetchone()
                 return dict(row) if row else None
 
-    def get_all_returns(self, exchange: str = "kraken", account_id: str = None, limit: int = 100):
-        query = """
+    def get_all_returns(
+        self, exchange: str = "kraken", account_id: str = None, limit: int = 100
+    ):
+        query = (
+            """
             SELECT * FROM daily_returns
             WHERE exchange = %s AND account_id = %s
             ORDER BY return_date DESC LIMIT %s
-        """ if account_id else """
+        """
+            if account_id
+            else """
             SELECT * FROM daily_returns
             WHERE exchange = %s
             ORDER BY return_date DESC LIMIT %s
         """
+        )
         params = [exchange, account_id, limit] if account_id else [exchange, limit]
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -1028,15 +1046,19 @@ class Database:
                 return [dict(row) for row in cur.fetchall()]
 
     def get_latest_balance(self, exchange: str = "kraken", account_id: str = None):
-        query = """
+        query = (
+            """
             SELECT * FROM balance_snapshots
             WHERE exchange = %s AND account_id = %s
             ORDER BY snapshot_date DESC LIMIT 1
-        """ if account_id else """
+        """
+            if account_id
+            else """
             SELECT * FROM balance_snapshots
             WHERE exchange = %s
             ORDER BY snapshot_date DESC LIMIT 1
         """
+        )
         params = [exchange, account_id] if account_id else [exchange]
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -1044,16 +1066,22 @@ class Database:
                 row = cur.fetchone()
                 return dict(row) if row else None
 
-    def get_all_balances(self, exchange: str = "kraken", account_id: str = None, limit: int = 30):
-        query = """
+    def get_all_balances(
+        self, exchange: str = "kraken", account_id: str = None, limit: int = 30
+    ):
+        query = (
+            """
             SELECT * FROM balance_snapshots
             WHERE exchange = %s AND account_id = %s
             ORDER BY snapshot_date DESC LIMIT %s
-        """ if account_id else """
+        """
+            if account_id
+            else """
             SELECT * FROM balance_snapshots
             WHERE exchange = %s
             ORDER BY snapshot_date DESC LIMIT %s
         """
+        )
         params = [exchange, account_id, limit] if account_id else [exchange, limit]
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -1075,7 +1103,9 @@ class Database:
                 cur.execute(query, [exchange])
                 return [dict(row) for row in cur.fetchall()]
 
-    def get_latest_trade_timestamp(self, exchange: str, account_id: str) -> Optional[int]:
+    def get_latest_trade_timestamp(
+        self, exchange: str, account_id: str
+    ) -> Optional[int]:
         query = """
             SELECT trade_timestamp
             FROM trades
@@ -1109,21 +1139,27 @@ class Database:
         records = []
         for t in trades:
             fee = t.get("fee") or {}
-            records.append({
-                "exchange": exchange,
-                "account_id": account_id,
-                "trade_id": t["id"],
-                "trade_timestamp": t["datetime"] if isinstance(t["datetime"], str) else t["timestamp"]/1000,
-                "symbol": t["symbol"],
-                "side": t["side"],
-                "type": t.get("type"),
-                "price": t["price"],
-                "amount": t["amount"],
-                "cost": t["cost"],
-                "fee_cost": fee.get("cost"),
-                "fee_currency": fee.get("currency"),
-                "raw_data": json.dumps(t),
-            })
+            records.append(
+                {
+                    "exchange": exchange,
+                    "account_id": account_id,
+                    "trade_id": t["id"],
+                    "trade_timestamp": (
+                        t["datetime"]
+                        if isinstance(t["datetime"], str)
+                        else t["timestamp"] / 1000
+                    ),
+                    "symbol": t["symbol"],
+                    "side": t["side"],
+                    "type": t.get("type"),
+                    "price": t["price"],
+                    "amount": t["amount"],
+                    "cost": t["cost"],
+                    "fee_cost": fee.get("cost"),
+                    "fee_currency": fee.get("currency"),
+                    "raw_data": json.dumps(t),
+                }
+            )
 
         with self.get_connection() as conn:
             with conn.cursor() as cur:
@@ -1131,8 +1167,10 @@ class Database:
                 inserted = cur.rowcount
         print(f"Inserted {inserted} new trades")
         return inserted
-    
-    def get_all_trades(self, exchange: str = "kraken", account_id: str = None, limit: int = 100):
+
+    def get_all_trades(
+        self, exchange: str = "kraken", account_id: str = None, limit: int = 100
+    ):
         query = """
             SELECT * FROM trades
             WHERE exchange = %s
