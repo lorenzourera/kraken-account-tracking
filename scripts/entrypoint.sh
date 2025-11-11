@@ -1,3 +1,4 @@
+#!/bin/bash
 set -euo pipefail
 
 echo "[$$(date -u)] Starting Kraken Account Tracking"

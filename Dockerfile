@@ -1,41 +1,38 @@
 FROM python:3.11.13-slim
 
-# Install curl first (needed for uv installer)
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
+# System packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl cron tzdata ca-certificates postgresql-client gcc libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv (fastest Python packager on earth)
+# Install uv
 ADD https://astral.sh/uv/0.4.22/install.sh /install-uv.sh
 RUN sh /install-uv.sh && rm /install-uv.sh
 ENV PATH="/root/.cargo/bin:$PATH"
 
-# System deps: cron + postgres client + tzdata + build tools
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    cron tzdata ca-certificates postgresql-client gcc libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# PH Timezone (UTC+8)
+# Timezone
 ENV TZ=Asia/Manila
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# App setup
+# Working directory
 WORKDIR /app
 
-# Copy only what we need for install (caching)
+# Install Python dependencies (cached)
 COPY pyproject.toml uv.lock ./
-COPY scripts/entrypoint.sh ./scripts/
-RUN chmod +x scripts/entrypoint.sh
-
-# Install deps with uv (cached forever)
 RUN uv sync --frozen --no-cache
 
-# Copy full app
-COPY . .
+# Copy application code
+COPY app/ .
 
-RUN echo "5 0 * * * cd /app && uv run main.py >> /var/log/cron.log 2>&1" > /etc/cron.d/daily-pull
-RUN chmod 0644 /etc/cron.d/daily-pull
-RUN crontab /etc/cron.d/daily-pull
-RUN touch /var/log/cron.log
+# Copy scripts LAST and make executable (this survives COPY . .)
+COPY scripts ./scripts
+RUN chmod +x ./scripts/entrypoint.sh
 
-# Final entrypoint
+# Cron job
+RUN echo "5 0 * * * cd /app && uv run main.py >> /var/log/cron.log 2>&1" > /etc/cron.d/daily-pull \
+    && chmod 0644 /etc/cron.d/daily-pull \
+    && crontab /etc/cron.d/daily-pull \
+    && touch /var/log/cron.log
+
+# Entry point
 ENTRYPOINT ["/app/scripts/entrypoint.sh"]
