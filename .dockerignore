@@ -1,0 +1,11 @@
+data/
+logs/
+__pycache__
+*.pyc
+*.sql
+*.dump
+*.backup
+.env
+uv.lock
+.git
+.DS_Store
