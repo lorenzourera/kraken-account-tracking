@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: kraken-account-tracking-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${POSTGRES_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  tracker:
+    build: .
+    container_name: kraken-account-tracking
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./logs:/var/log
+      - ./data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "
+        echo '[$(date -u)] Waiting for PostgreSQL (${DB_USER}@${POSTGRES_DB_NAME})...';
+        until pg_isready -h db -p 5432 -U ${DB_USER} > /dev/null 2>&1; do
+          echo 'DB not ready — sleeping 2s';
+          sleep 2;
+        done;
+        echo '[$(date -u)] PostgreSQL READY ';
+        exec /app/scripts/entrypoint.sh
+      "
+
+volumes:
+  data:
+  logs:
