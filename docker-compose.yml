@@ -32,12 +32,12 @@ services:
         condition: service_healthy
     command: >
       sh -c "
-        echo '[$(date -u)] Waiting for PostgreSQL (${DB_USER}@${POSTGRES_DB_NAME})...';
-        until pg_isready -h db -p 5432 -U ${DB_USER} > /dev/null 2>&1; do
+        echo '[$$(date -u)] Waiting for PostgreSQL ($${DB_USER}@$${POSTGRES_DB_NAME})...';
+        until pg_isready -h db -p 5432 -U $${DB_USER} > /dev/null 2>&1; do
           echo 'DB not ready — sleeping 2s';
           sleep 2;
         done;
-        echo '[$(date -u)] PostgreSQL READY ';
+        echo '[$$(date -u)] PostgreSQL READY — launching @zo_urera Kraken Empire';
         exec /app/scripts/entrypoint.sh
       "
 
