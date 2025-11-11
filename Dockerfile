@@ -1,16 +1,8 @@
-FROM ubuntu:22.04
+FROM python:3.11.13-slim
 
-# Prevent interactive prompts during package installation
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Install Python 3.11 and curl
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.11 python3.11-venv python3.11-dev python3-pip curl \
+# Install curl first (needed for uv installer)
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
-
-# Make python3.11 the default python
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 \
-    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
 
 # Install uv (fastest Python packager on earth)
 ADD https://astral.sh/uv/0.4.22/install.sh /install-uv.sh
@@ -46,4 +38,4 @@ RUN crontab /etc/cron.d/daily-pull
 RUN touch /var/log/cron.log
 
 # Final entrypoint
-ENTRYPOINT ["scripts/entrypoint.sh"]
+ENTRYPOINT ["/app/scripts/entrypoint.sh"]
