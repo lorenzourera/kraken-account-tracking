@@ -1,4 +1,16 @@
-FROM python:3.11.13-slim
+FROM ubuntu:22.04
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install Python 3.11 and curl
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 python3.11-venv python3.11-dev python3-pip curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Make python3.11 the default python
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 \
+    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
 
 # Install uv (fastest Python packager on earth)
 ADD https://astral.sh/uv/0.4.22/install.sh /install-uv.sh
@@ -27,7 +39,6 @@ RUN uv sync --frozen --no-cache
 
 # Copy full app
 COPY . .
-
 
 RUN echo "5 0 * * * cd /app && uv run main.py >> /var/log/cron.log 2>&1" > /etc/cron.d/daily-pull
 RUN chmod 0644 /etc/cron.d/daily-pull

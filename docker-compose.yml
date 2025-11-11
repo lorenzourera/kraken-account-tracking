@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:16-alpine
@@ -37,7 +35,7 @@ services:
           echo 'DB not ready — sleeping 2s';
           sleep 2;
         done;
-        echo '[$$(date -u)] PostgreSQL READY — launching @zo_urera Kraken Empire';
+        echo '[$$(date -u)] PostgreSQL READY — Starting Kraken Account Tracking';
         exec /app/scripts/entrypoint.sh
       "
 
