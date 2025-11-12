@@ -16,6 +16,8 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 WORKDIR /app
 
+# .env
+COPY .env .env
 # Dependencies
 COPY pyproject.toml .
 COPY uv.lock .
