@@ -17,7 +17,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 WORKDIR /app
 
 # Dependencies
-COPY pyproject.toml
+COPY pyproject.toml .
 COPY uv.lock .
 RUN uv sync --frozen --no-cache
 
