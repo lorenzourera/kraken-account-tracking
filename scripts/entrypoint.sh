@@ -1,15 +1,19 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "[$$(date -u)] Starting Kraken Account Tracking"
+timestamp() {
+    date '+%Y-%m-%d %H:%M:%S %Z'
+}
+
+echo "[$(timestamp)] Starting Kraken Account Tracking"
 
 # Start cron daemon (daily pull at 8:05 AM PH = 00:05 UTC+8)
-echo "[$$(date -u)] Starting cron daemon..."
+echo "[$(timestamp)] Starting cron daemon..."
 service cron start || cron
 tail -f /var/log/cron.log &
 
 # Verify/create ALL tables via database.py
-echo "[$$(date -u)] Verifying database schema via database.py..."
+echo "[$(timestamp)] Verifying database schema via database.py..."
 uv run python -c "
 from database import Database
 from decouple import config
@@ -21,13 +25,13 @@ print('All tables verified/created. schema LOCKED')
 "
 
 # Run initial data pull (first deploy or after nuke)
-echo "[$$(date -u)] Running initial data pull..."
+echo "[$(timestamp)] Running initial data pull..."
 if uv run main.py >> /var/log/cron.log 2>&1; then
-    echo "[$$(date -u)] Initial pull: SUCCESS"
+    echo "[$(timestamp)] Initial pull: SUCCESS"
 else
-    echo "[$$(date -u)] Initial pull: FAILED — will retry daily at 8:05 AM PH"
+    echo "[$(timestamp)] Initial pull: FAILED — will retry daily at 12:05 AM PH"
 fi
 
 # Start Telegram bot — FOREVER (PID 1)
-echo "[$$(date -u)] Starting Portfolio Tracking Telegram Bot — running 24/7 from PH soil..."
+echo "[$(timestamp)] Starting Portfolio Tracking Telegram Bot — running 24/7 from PH soil..."
 exec uv run telegram_bot.py
