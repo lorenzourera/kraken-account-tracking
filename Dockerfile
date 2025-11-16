@@ -2,7 +2,7 @@ FROM python:3.11.13-slim
 
 # System packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl cron tzdata ca-certificates postgresql-client gcc libpq-dev \
+    curl cron tzdata ca-certificates postgresql-client gcc libpq-dev procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
